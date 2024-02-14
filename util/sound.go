@@ -60,24 +60,35 @@
 package util
 
 import (
+	"embed"
 	"errors"
+	"io"
 	"log"
+	"os"
 	"os/exec"
 	"runtime"
 
 	"github.com/gen2brain/beeep"
 )
 
+//go:embed WAV/*
+var wavFS embed.FS
+
 func EndOfTimer(soundFilePath, title, message string) {
     // Play the end of timer sound in a non-blocking way
+    
     go func() {
-        err := PlaySound(soundFilePath)
+        tmpFileName, err := PrepareSoundFile(soundFilePath)
+        if err != nil {
+            log.Printf("Error preparing sound file: %v", err)
+            return
+        }
+        err = ExecuteSoundPlayback(tmpFileName)
         if err != nil {
             log.Printf("Error playing sound: %v", err)
         }
     }()
 
-    // Show the notification in a non-blocking way
     go func() {
         err := ShowNotification(title, message)
         if err != nil {
@@ -87,34 +98,32 @@ func EndOfTimer(soundFilePath, title, message string) {
 }
 
 
+func ExecuteSoundPlayback(tmpFileName string) error {
+    var cmd *exec.Cmd
 
-func PlaySound(filePath string) error {
-	var cmd *exec.Cmd
     switch runtime.GOOS {
-    case "darwin": // macOS
+    case "darwin":
         if CmdExists("afplay") {
-            cmd = exec.Command("afplay", filePath)
+            cmd = exec.Command("afplay", tmpFileName)
         } else {
             return errors.New("no compatible media player found")
         }
     case "linux":
-        // Prioritize media players by quality and availability
         if CmdExists("ffplay") {
-            cmd = exec.Command("ffplay", "-nodisp", "-autoexit", filePath)
+            cmd = exec.Command("ffplay", "-nodisp", "-autoexit", tmpFileName)
         } else if CmdExists("mpg123") {
-            cmd = exec.Command("mpg123", filePath)
+            cmd = exec.Command("mpg123", tmpFileName)
         } else if CmdExists("paplay") {
-            cmd = exec.Command("paplay", filePath)
+            cmd = exec.Command("paplay", tmpFileName)
         } else if CmdExists("aplay") {
-            cmd = exec.Command("aplay", filePath)
+            cmd = exec.Command("aplay", tmpFileName)
         } else {
             return errors.New("no compatible media player found")
         }
     case "windows":
-        // Windows: attempt to use PowerShell as a more reliable method
         if CmdExists("powershell") {
             cmdStr := `$player = New-Object System.Media.SoundPlayer;` +
-                `$player.SoundLocation = '` + filePath + `';` +
+                `$player.SoundLocation = '` + tmpFileName + `';` +
                 `$player.PlaySync();`
             cmd = exec.Command("powershell", "-Command", cmdStr)
         } else {
@@ -127,8 +136,43 @@ func PlaySound(filePath string) error {
     return cmd.Run()
 }
 
+
+func PrepareSoundFile(filePath string) (string, error) {
+    soundFilePath := "WAV/" + filePath
+
+    soundFile, err := wavFS.Open(soundFilePath)
+    if err != nil {
+        log.Printf("Error opening embedded sound file '%s': %v", soundFilePath, err)
+        return "", errors.New("failed to open embedded sound file")
+    }
+    defer soundFile.Close()
+
+    tmpFile, err := os.CreateTemp("", "sound-*.wav")
+    if err != nil {
+        log.Printf("Error creating temporary file for sound: %v", err)
+        return "", errors.New("failed to create temporary file for sound")
+    }
+    tmpFileName := tmpFile.Name()
+
+    if _, err = io.Copy(tmpFile, soundFile); err != nil {
+        tmpFile.Close()
+        os.Remove(tmpFileName) // Clean up even in case of error
+        log.Printf("Error copying sound file to temporary file '%s': %v", tmpFileName, err)
+        return "", errors.New("failed to copy sound file to temporary file")
+    }
+
+    if err := tmpFile.Close(); err != nil {
+        os.Remove(tmpFileName) // Clean up even in case of error
+        log.Printf("Error closing temporary sound file '%s': %v", tmpFileName, err)
+        return "", errors.New("failed to close temporary sound file")
+    }
+
+    return tmpFileName, nil
+}
+
+
+
 func ShowNotification(title, message string) error {
-    // Customize the icon path according to your application's needs
     iconPath := "path/to/icon.png" // Make sure to adjust this path
     return beeep.Notify(title, message, iconPath)
 }

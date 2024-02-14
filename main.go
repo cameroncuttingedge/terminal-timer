@@ -1,7 +1,6 @@
 package main
 
 import (
-	"embed"
 	"flag"
 	"fmt"
 	"log"
@@ -16,9 +15,9 @@ import (
 	"github.com/mattn/go-tty"
 )
 
-var wavFS embed.FS
 
 func main() {
+
 	timerFlag, alarmFlag, reminderFlag := parseFlags()
 
 	cleanupFunc := func() {
@@ -51,7 +50,7 @@ func parseFlags() (timerFlag string, alarmFlag string, reminderFlag string) {
 
 func runTimerLoop(totalSeconds int, reminder string) {
     title := "Timer Completed"
-    soundPath := "WAV/Jinja.wav"
+    soundPath := "Jinja.wav"
     for {
         util.HideCursor()
         util.Render()
