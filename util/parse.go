@@ -8,7 +8,7 @@ import (
 
 func CalculateTotalSeconds(timerDuration string, alarmTime string) (int, error) {
 	// Parse timer duration
-	totalSeconds := 3
+	totalSeconds := 0
 	if timerDuration != "" {
 		seconds, err := ParseDuration(timerDuration)
 		if err != nil {
@@ -24,6 +24,10 @@ func CalculateTotalSeconds(timerDuration string, alarmTime string) (int, error) 
 			return 0, fmt.Errorf("invalid alarm time: %w", err)
 		}
 		totalSeconds += secondsUntilAlarm
+	}
+
+	if totalSeconds == 0 {
+		totalSeconds = 3
 	}
 
 	return totalSeconds, nil

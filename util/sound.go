@@ -74,6 +74,9 @@ import (
 //go:embed WAV/*
 var wavFS embed.FS
 
+//go:embed WAV/clock.png
+var clockPNG embed.FS
+
 func EndOfTimer(soundFilePath, title, message string) {
     // Play the end of timer sound in a non-blocking way
     
@@ -173,6 +176,37 @@ func PrepareSoundFile(filePath string) (string, error) {
 
 
 func ShowNotification(title, message string) error {
-    iconPath := "path/to/icon.png" // Make sure to adjust this path
-    return beeep.Notify(title, message, iconPath)
+    // Open the embedded clock.png
+    clockFile, err := clockPNG.Open("WAV/clock.png")
+    if err != nil {
+        log.Printf("Error opening embedded image 'WAV/clock.png': %v", err)
+        return err
+    }
+    defer clockFile.Close()
+
+    // Create a temporary file for the clock image
+    tmpFile, err := os.CreateTemp("", "clock-*.png")
+    if err != nil {
+        log.Printf("Error creating temporary file for image: %v", err)
+        return err
+    }
+    defer tmpFile.Close()
+    defer os.Remove(tmpFile.Name()) // Clean up the temp file after use
+
+    // Copy the embedded clock image content to the temporary file
+    _, err = io.Copy(tmpFile, clockFile)
+    if err != nil {
+        log.Printf("Error copying image to temporary file '%s': %v", tmpFile.Name(), err)
+        return err
+    }
+
+    // Use the path of the temp file for the icon in beeep.Notify
+    iconPath := tmpFile.Name()
+    err = beeep.Notify(title, message, iconPath)
+    if err != nil {
+        log.Printf("Error showing notification: %v", err)
+        return err
+    }
+    return nil
 }
+

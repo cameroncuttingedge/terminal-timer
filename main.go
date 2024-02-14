@@ -16,6 +16,15 @@ import (
 )
 
 
+func init() {
+    logFile, err := os.OpenFile("application.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+    if err != nil {
+        log.Fatal("Error opening log file:", err)
+    }
+
+    log.SetOutput(logFile)
+}
+
 func main() {
 
 	timerFlag, alarmFlag, reminderFlag := parseFlags()
@@ -144,29 +153,28 @@ func bufferEndMessage(matrix *displays.DisplayMatrix, reminder string, font stri
 
 
 func startTimer(totalSeconds int, font string, matrix *displays.DisplayMatrix) {
-
     endTime := time.Now().Add(time.Duration(totalSeconds) * time.Second)
-	for range time.Tick(time.Second) {
-		//startLoopTime := time.Now()
-		remaining := time.Until(endTime)
-		if remaining <= 0 {
-			break
-		}
+    ticker := time.NewTicker(time.Second)
+    defer ticker.Stop()
 
-		message := fmt.Sprintf("%02d:%02d:%02d", int(remaining.Hours()), int(remaining.Minutes())%60, int(remaining.Seconds())%60)
-
-		asciiArt := util.GetAsciiArt(message, font)
-
-		matrix.AddCenteredAsciiArt(asciiArt, message)
-
-		matrix.Print()
-
-		matrix.ResizeAndClear()
-		// loopDuration := time.Since(startLoopTime)
-		// //fmt.Printf("Loop iteration took %s\n", loopDuration)
-	}
+    updateTimerDisplay(endTime, font, matrix) 
+    for range ticker.C {
+        if time.Until(endTime) <= 0 {
+            break
+        }
+        updateTimerDisplay(endTime, font, matrix)
+    }
 }
 
+func updateTimerDisplay(endTime time.Time, font string, matrix *displays.DisplayMatrix) {
+    remaining := time.Until(endTime)
+    message := fmt.Sprintf("%02d:%02d:%02d", int(remaining.Hours()), int(remaining.Minutes())%60, int(remaining.Seconds())%60)
+    asciiArt := util.GetAsciiArt(message, font)
+
+    matrix.ResizeAndClear()
+    matrix.AddCenteredAsciiArt(asciiArt, message)
+    matrix.Print()
+}
 
 func setupSignalHandling(cleanupFunc func()) {
     c := make(chan os.Signal, 1)
