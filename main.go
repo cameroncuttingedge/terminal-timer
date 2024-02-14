@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
 	"log"
@@ -15,11 +16,7 @@ import (
 	"github.com/mattn/go-tty"
 )
 
-// var (
-//     timerFlag = flag.String("t", "", "Duration in hh:mm format")
-//     alarmFlag = flag.String("a", "", "Alarm time in 24-hour format hh:mm")
-//     reminderFlag = flag.String("r", "Time is Up!", "Reminder message")
-// )
+var wavFS embed.FS
 
 func main() {
 	timerFlag, alarmFlag, reminderFlag := parseFlags()
@@ -54,7 +51,7 @@ func parseFlags() (timerFlag string, alarmFlag string, reminderFlag string) {
 
 func runTimerLoop(totalSeconds int, reminder string) {
     title := "Timer Completed"
-    soundPath := "/home/cameron/personal/terminal-timer/util/public_sounds_boop.mp3"
+    soundPath := "WAV/Jinja.wav"
     for {
         util.HideCursor()
         util.Render()
@@ -174,11 +171,11 @@ func startTimer(totalSeconds int, font string, matrix *displays.DisplayMatrix) {
 
 func setupSignalHandling(cleanupFunc func()) {
     c := make(chan os.Signal, 1)
-    signal.Notify(c, os.Interrupt, syscall.SIGTERM) // Catch Ctrl+C and termination requests
+    signal.Notify(c, os.Interrupt, syscall.SIGTERM)
     
     go func() {
-        <-c // Block until a signal is received
-        cleanupFunc() // Execute the cleanup function
+        <-c 
+        cleanupFunc()
         fmt.Println("\nReceived Ctrl+C, exiting...")
         os.Exit(0)
     }()

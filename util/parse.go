@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-// Adjusted to work with parsed flag values instead of directly parsing command line args
 func CalculateTotalSeconds(timerDuration string, alarmTime string) (int, error) {
 	// Parse timer duration
 	totalSeconds := 3
@@ -61,7 +60,7 @@ func ParseAlarm(alarmStr string) (int, error) {
 
 func GetReminderMessage(reminderFlag string) string {
     if reminderFlag == "" {
-        return "Time is Up!" // Default reminder message
+        return "Time is Up!" 
     }
     return reminderFlag
 }

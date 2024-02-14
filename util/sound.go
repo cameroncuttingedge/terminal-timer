@@ -61,34 +61,31 @@ package util
 
 import (
 	"errors"
+	"log"
 	"os/exec"
 	"runtime"
 
 	"github.com/gen2brain/beeep"
 )
 
-func EndOfTimer(soundFilePath, title, message string) error {
-    done := make(chan error, 2)
-
+func EndOfTimer(soundFilePath, title, message string) {
+    // Play the end of timer sound in a non-blocking way
     go func() {
         err := PlaySound(soundFilePath)
-        done <- err
+        if err != nil {
+            log.Printf("Error playing sound: %v", err)
+        }
     }()
 
+    // Show the notification in a non-blocking way
     go func() {
         err := ShowNotification(title, message)
-        done <- err
-    }()
-
-    for i := 0; i < 2; i++ {
-        err := <-done
         if err != nil {
-            return err
+            log.Printf("Error showing notification: %v", err)
         }
-    }
-
-    return nil
+    }()
 }
+
 
 
 func PlaySound(filePath string) error {

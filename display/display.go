@@ -60,7 +60,7 @@ func (dm *DisplayMatrix) AddCenteredAsciiArt(asciiArt []string, message string) 
         }
     }
 
-    // Check if the ASCII art will fit vertically and horizontally
+    // Check if the art will fit vertically and horizontally
     if artHeight > dm.Height || artWidth > dm.Width {
         dm.AddCenteredMessage(message)
         return
