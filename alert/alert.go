@@ -1,63 +1,4 @@
-// package util
-
-// import (
-// 	"log"
-// 	"os"
-// 	"time"
-
-// 	"github.com/ebitengine/oto/v3"
-// 	"github.com/hajimehoshi/go-mp3"
-// )
-
-// func EndOfTimer() {
-// 	filePath := "/home/cameron/personal/terminal-timer/util/public_sounds_boop.mp3"
-//     // Open the MP3 file
-//     file, err := os.Open(filePath)
-//     if err != nil {
-//         log.Fatalf("Failed to open MP3 file: %v", err)
-//     }
-//     defer file.Close()
-
-//     // Decode the MP3 file
-//     decoded, err := mp3.NewDecoder(file)
-//     if err != nil {
-//         log.Fatalf("Failed to decode MP3: %v", err)
-//     }
-
-//     // Initialize oto context with the decoded MP3 format
-//     ctx, ready, err := oto.NewContext(&oto.NewContextOptions{
-//         SampleRate:       decoded.SampleRate(),
-//         ChannelCount:     2, // Use 2 for stereo sound
-//         Format:           oto.FormatSignedInt16LE, // go-mp3's format is signed 16bit
-//     })
-//     if err != nil {
-//         log.Fatalf("Failed to initialize audio context: %v", err)
-//     }
-//     <-ready // Wait for the audio hardware to be ready
-
-//     // Create a new player from the oto context
-//     player := ctx.NewPlayer(decoded)
-
-//     // Start playback
-//     player.Play()
-
-//     // Wait for the sound to finish playing
-//     for player.IsPlaying() {
-//         time.Sleep(100 * time.Millisecond)
-//     }
-
-//     // Clean up resources
-//     if err := player.Close(); err != nil {
-//         log.Fatalf("Failed to close player: %v", err)
-//     }
-// 	// Notify the user that the timer is done
-// 	err = beeep.Notify("Timer Completed", reminder, "") // Path to an icon can be added as the third parameter
-// 	if err != nil {
-// 		log.Fatalf("Failed to send notification: %v", err)
-// 		}
-// }
-
-package util
+package sound
 
 import (
 	"embed"
@@ -67,6 +8,8 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"terminal-timer/random"
+	"terminal-timer/util"
 
 	"github.com/gen2brain/beeep"
 )
@@ -74,21 +17,34 @@ import (
 //go:embed WAV/*
 var wavFS embed.FS
 
+//go:embed WAV/clock.png
+var clockPNG embed.FS
+
 func EndOfTimer(soundFilePath, title, message string) {
     // Play the end of timer sound in a non-blocking way
-    
     go func() {
         tmpFileName, err := PrepareSoundFile(soundFilePath)
         if err != nil {
             log.Printf("Error preparing sound file: %v", err)
             return
         }
+        
+        // This doesn't always work as someimes the applciation quits beforehand
+        // See the cleanup func in main.go for the backup plan
+        defer func() {
+            if removeErr := os.Remove(tmpFileName); removeErr != nil {
+                log.Printf("Error removing temporary file '%s': %v", tmpFileName, removeErr)
+            }
+        }()
+        
+        // Play the sound
         err = ExecuteSoundPlayback(tmpFileName)
         if err != nil {
             log.Printf("Error playing sound: %v", err)
         }
     }()
-
+    
+    // Execute notification display in a separate goroutine
     go func() {
         err := ShowNotification(title, message)
         if err != nil {
@@ -98,30 +54,31 @@ func EndOfTimer(soundFilePath, title, message string) {
 }
 
 
+
 func ExecuteSoundPlayback(tmpFileName string) error {
     var cmd *exec.Cmd
 
     switch runtime.GOOS {
     case "darwin":
-        if CmdExists("afplay") {
+        if util.CmdExists("afplay") {
             cmd = exec.Command("afplay", tmpFileName)
         } else {
             return errors.New("no compatible media player found")
         }
     case "linux":
-        if CmdExists("ffplay") {
+        if util.CmdExists("ffplay") {
             cmd = exec.Command("ffplay", "-nodisp", "-autoexit", tmpFileName)
-        } else if CmdExists("mpg123") {
+        } else if util.CmdExists("mpg123") {
             cmd = exec.Command("mpg123", tmpFileName)
-        } else if CmdExists("paplay") {
+        } else if util.CmdExists("paplay") {
             cmd = exec.Command("paplay", tmpFileName)
-        } else if CmdExists("aplay") {
+        } else if util.CmdExists("aplay") {
             cmd = exec.Command("aplay", tmpFileName)
         } else {
             return errors.New("no compatible media player found")
         }
     case "windows":
-        if CmdExists("powershell") {
+        if util.CmdExists("powershell") {
             cmdStr := `$player = New-Object System.Media.SoundPlayer;` +
                 `$player.SoundLocation = '` + tmpFileName + `';` +
                 `$player.PlaySync();`
@@ -146,8 +103,7 @@ func PrepareSoundFile(filePath string) (string, error) {
         return "", errors.New("failed to open embedded sound file")
     }
     defer soundFile.Close()
-
-    tmpFile, err := os.CreateTemp("", "sound-*.wav")
+    tmpFile, err := os.OpenFile(random.TempFileName, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0600)
     if err != nil {
         log.Printf("Error creating temporary file for sound: %v", err)
         return "", errors.New("failed to create temporary file for sound")
@@ -173,6 +129,37 @@ func PrepareSoundFile(filePath string) (string, error) {
 
 
 func ShowNotification(title, message string) error {
-    iconPath := "path/to/icon.png" // Make sure to adjust this path
-    return beeep.Notify(title, message, iconPath)
+    // Open the embedded clock.png
+    clockFile, err := clockPNG.Open("WAV/clock.png")
+    if err != nil {
+        log.Printf("Error opening embedded image 'WAV/clock.png': %v", err)
+        return err
+    }
+    defer clockFile.Close()
+
+    // Create a temporary file for the clock image
+    tmpFile, err := os.CreateTemp("", "clock-*.png")
+    if err != nil {
+        log.Printf("Error creating temporary file for image: %v", err)
+        return err
+    }
+    defer tmpFile.Close()
+    defer os.Remove(tmpFile.Name()) // Clean up the temp file after use
+
+    // Copy the embedded clock image content to the temporary file
+    _, err = io.Copy(tmpFile, clockFile)
+    if err != nil {
+        log.Printf("Error copying image to temporary file '%s': %v", tmpFile.Name(), err)
+        return err
+    }
+
+    // Use the path of the temp file for the icon in beeep.Notify
+    iconPath := tmpFile.Name()
+    err = beeep.Notify(title, message, iconPath)
+    if err != nil {
+        log.Printf("Error showing notification: %v", err)
+        return err
+    }
+    return nil
 }
+

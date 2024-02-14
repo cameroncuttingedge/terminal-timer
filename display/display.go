@@ -1,8 +1,9 @@
-package displays
+package display
 
 import (
 	"fmt"
 	"strings"
+	"terminal-timer/art"
 	"terminal-timer/util"
 )
 
@@ -89,7 +90,7 @@ func (dm *DisplayMatrix) Print() {
         output.WriteRune('\n')
     }
     util.HideCursor()
-    util.ClearTerminal()
+    util.Clear()
     fmt.Print(output.String())
 }
 
@@ -135,4 +136,13 @@ func (dm *DisplayMatrix) AddBottomLeftMessage(message string) {
             break
         }
     }
+}
+
+
+func BufferEndMessage(matrix *DisplayMatrix, reminder string, font string) {
+    matrix.ResizeAndClear()
+    timeUpMessage := art.GetAsciiArt(reminder, font)
+    matrix.AddCenteredAsciiArt(timeUpMessage, reminder)
+    message := "Press 'q' to quit or 'r' to repeat."
+    matrix.AddBottomLeftMessage(message)
 }
