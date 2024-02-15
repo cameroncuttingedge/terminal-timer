@@ -172,7 +172,6 @@ func (dm *DisplayMatrix) PrintItemsInGrid(items []string, columns int) {
         posX := startX + col*(maxItemLength+2) // +2 for padding between columns
         posY := startY + row
 
-        // Ensure we don't try to print outside the matrix bounds
         if posY >= 0 && posY < dm.Height && posX >= 0 && posX+maxItemLength <= dm.Width {
             copy(dm.Matrix[posY][posX:posX+maxItemLength], []rune(fmt.Sprintf("%-*s", maxItemLength, item)))
         }
@@ -189,7 +188,6 @@ func RenderPrettyData(fonts []string) {
     matrix := NewDisplayMatrix(width, height)
 
     // Determine the number of columns based on the terminal width
-    // Here we make a simple calculation, adjust as necessary
     maxLen := 0
     for _, font := range fonts {
         if len(font) > maxLen {
