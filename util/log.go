@@ -12,4 +12,5 @@ func SetupLogger() {
     }
 
     log.SetOutput(logFile)
+    log.SetFlags(0)
 }

@@ -2,6 +2,8 @@ package display
 
 import (
 	"fmt"
+	"math"
+	"os"
 	"strings"
 	"terminal-timer/art"
 	"terminal-timer/util"
@@ -145,4 +147,81 @@ func BufferEndMessage(matrix *DisplayMatrix, reminder string, font string) {
     matrix.AddCenteredAsciiArt(timeUpMessage, reminder)
     message := "Press 'q' to quit or 'r' to repeat."
     matrix.AddBottomLeftMessage(message)
+}
+
+func (dm *DisplayMatrix) PrintItemsInGrid(items []string, columns int) {
+    // Calculate necessary dimensions
+    rows := int(math.Ceil(float64(len(items)) / float64(columns)))
+    maxItemLength := 0
+    for _, item := range items {
+        if len(item) > maxItemLength {
+            maxItemLength = len(item)
+        }
+    }
+
+    // Calculate starting positions
+    totalWidth := maxItemLength*columns + (columns-1)*2 // Assuming 2 spaces as padding between columns
+    startX := (dm.Width - totalWidth) / 2
+    startY := (dm.Height - rows) / 2
+
+    // Iterate over items and print them in the specified grid layout
+    for i, item := range items {
+        row := i / columns
+        col := i % columns
+
+        posX := startX + col*(maxItemLength+2) // +2 for padding between columns
+        posY := startY + row
+
+        // Ensure we don't try to print outside the matrix bounds
+        if posY >= 0 && posY < dm.Height && posX >= 0 && posX+maxItemLength <= dm.Width {
+            copy(dm.Matrix[posY][posX:posX+maxItemLength], []rune(fmt.Sprintf("%-*s", maxItemLength, item)))
+        }
+    }
+}
+
+
+func RenderPrettyData(fonts []string) {
+    width, height, err := util.GetSize()
+    if err != nil {
+        fmt.Printf("Error getting terminal size: %v\n", err)
+        return
+    }
+    matrix := NewDisplayMatrix(width, height)
+
+    // Determine the number of columns based on the terminal width
+    // Here we make a simple calculation, adjust as necessary
+    maxLen := 0
+    for _, font := range fonts {
+        if len(font) > maxLen {
+            maxLen = len(font)
+        }
+    }
+    columns := int(math.Floor(float64(width) / float64(maxLen + 2))) // 2 spaces padding
+
+    // Use the DisplayMatrix to print the fonts in a grid
+    matrix.PrintItemsInGrid(fonts, columns)
+    matrix.Print()
+
+    os.Exit(1)
+}
+
+
+func RenderFontExample (font string) {
+
+    message := "420:69"
+
+    width, height, err := util.GetSize()
+    if err != nil {
+        fmt.Printf("Error getting terminal size: %v\n", err)
+        return
+    }
+    matrix := NewDisplayMatrix(width, height)
+
+    art := art.GetAsciiArt(message, font)
+
+    matrix.AddCenteredAsciiArt(art, message)
+
+    matrix.Print()
+
+    os.Exit(1)
 }

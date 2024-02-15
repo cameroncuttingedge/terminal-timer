@@ -1,12 +1,14 @@
-package sound
+package alert
 
 import (
 	"embed"
 	"errors"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"terminal-timer/random"
 	"terminal-timer/util"
@@ -17,7 +19,7 @@ import (
 //go:embed WAV/*
 var wavFS embed.FS
 
-//go:embed WAV/clock.png
+//go:embed icon/clock.png
 var clockPNG embed.FS
 
 func EndOfTimer(soundFilePath, title, message string) {
@@ -129,8 +131,7 @@ func PrepareSoundFile(filePath string) (string, error) {
 
 
 func ShowNotification(title, message string) error {
-    // Open the embedded clock.png
-    clockFile, err := clockPNG.Open("WAV/clock.png")
+    clockFile, err := clockPNG.Open("icon/clock.png")
     if err != nil {
         log.Printf("Error opening embedded image 'WAV/clock.png': %v", err)
         return err
@@ -146,7 +147,7 @@ func ShowNotification(title, message string) error {
     defer tmpFile.Close()
     defer os.Remove(tmpFile.Name()) // Clean up the temp file after use
 
-    // Copy the embedded clock image content to the temporary file
+    // Copy the clock image content to the temporary file
     _, err = io.Copy(tmpFile, clockFile)
     if err != nil {
         log.Printf("Error copying image to temporary file '%s': %v", tmpFile.Name(), err)
@@ -162,4 +163,24 @@ func ShowNotification(title, message string) error {
     }
     return nil
 }
+
+
+func ListValidSounds() ([]string, error) {
+    var sounds []string
+
+    // Read the directory from the embedded filesystem
+    err := fs.WalkDir(wavFS, "WAV", func(path string, d fs.DirEntry, err error) error {
+        if err != nil {
+            return err
+        }
+        if !d.IsDir() {
+            sounds = append(sounds, filepath.Base(path))
+        }
+        return nil
+    })
+
+    return sounds, err
+}
+
+
 

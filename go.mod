@@ -6,6 +6,7 @@ require (
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/gen2brain/beeep v0.0.0-20240112042604-c7bb2cd88fea
 	github.com/mattn/go-tty v0.0.5
+	github.com/mitchellh/go-homedir v1.1.0
 	golang.org/x/term v0.9.0
 )
 

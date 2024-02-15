@@ -9,10 +9,11 @@ import (
 	"syscall"
 	"time"
 
+	"terminal-timer/alert"
 	"terminal-timer/art"
+	"terminal-timer/config"
 	"terminal-timer/display"
 	"terminal-timer/random"
-	"terminal-timer/sound"
 	"terminal-timer/util"
 
 	"github.com/mattn/go-tty"
@@ -22,36 +23,43 @@ var userDecision = make(chan string, 1)
 
 // main initializes the application, parses flags, and starts the timer loop.
 func main() {
-	timerFlag, alarmFlag, reminderFlag, enableLogging := util.ParseFlags()
     
+    util.ParseFlags()
+
+    fmt.Printf(*util.PreviewSoundFlag)
+
+    config.LoadOrCreateConfig()
+
     random.GenerateTempFileName()
 
-    if enableLogging {
+    config.CheckIfconfigChangesRequested()
+
+    if *util.EnableLogging {
         util.SetupLogger()
     }
 
-	setupSignalHandling(cleanup)
+	setupSignalHandling(util.Cleanup)
 
     var directInput string
 	if len(flag.Args()) > 0 {
 		directInput = flag.Arg(0)
 	}
 
-	totalSeconds, err := util.CalculateTotalSeconds(timerFlag, alarmFlag, directInput)
+	totalSeconds, err := util.CalculateTotalSeconds(*util.TimerFlag, *util.AlarmFlag, directInput)
     if err != nil {
         fmt.Println("Error parsing timer or alarm flag:", err)
         return
     }
 
-	reminder := util.GetReminderMessage(reminderFlag)
+	reminder := util.GetReminderMessage(*util.ReminderFlag)
 	runTimerLoop(totalSeconds, reminder)
-    defer cleanup()
+    defer util.Cleanup()
 }
 
 // runTimerLoop runs the main timer loop, displaying time and handling user input.
 func runTimerLoop(totalSeconds int, reminder string) {
     title := "Timer Completed"
-    soundPath := "Jinja.wav"
+    soundPath := config.Sound
     for {
         util.HideCursor()
         util.Render()
@@ -63,11 +71,11 @@ func runTimerLoop(totalSeconds int, reminder string) {
         }
 
         matrix := display.NewDisplayMatrix(width, height)
-        startTimer(totalSeconds, "", matrix)
-        display.BufferEndMessage(matrix, reminder, "")
+        startTimer(totalSeconds, matrix)
+        display.BufferEndMessage(matrix, reminder, config.Font)
 
         matrix.Print()
-        sound.EndOfTimer(soundPath, title, reminder)
+        alert.EndOfTimer(soundPath, title, reminder)
 
         if !waitForUserInput(matrix, reminder, "") {
             break
@@ -105,7 +113,7 @@ func waitForUserInput(matrix *display.DisplayMatrix, reminder, font string) bool
             return decision == "r"
         default:
             matrix.ResizeAndClear()
-            display.BufferEndMessage(matrix, reminder, font)
+            display.BufferEndMessage(matrix, reminder, config.Font)
             matrix.Print()
             time.Sleep(100 * time.Millisecond)
         }
@@ -113,20 +121,31 @@ func waitForUserInput(matrix *display.DisplayMatrix, reminder, font string) bool
 }
 
 // startTimer counts down the timer and updates the display.
-func startTimer(totalSeconds int, font string, matrix *display.DisplayMatrix) {
+func startTimer(totalSeconds int, matrix *display.DisplayMatrix) {
     endTime := time.Now().Add(time.Duration(totalSeconds) * time.Second)
-	for range time.Tick(time.Second) {
-		remaining := time.Until(endTime)
-		if remaining <= 0 {
-			break
-		}
+    
+    // Call the update function once before entering the loop to display the first tick
+    updateTimerDisplay(endTime, matrix)
 
-		message := fmt.Sprintf("%02d:%02d:%02d", int(remaining.Hours()), int(remaining.Minutes())%60, int(remaining.Seconds())%60)
-		asciiArt := art.GetAsciiArt(message, font)
-		matrix.AddCenteredAsciiArt(asciiArt, message)
-		matrix.Print()
-		matrix.ResizeAndClear()
-	}
+    ticker := time.NewTicker(time.Second)
+    defer ticker.Stop()
+
+    for range ticker.C {
+        if time.Now().After(endTime) {
+            break
+        }
+        updateTimerDisplay(endTime, matrix)
+    }
+}
+
+// updateTimerDisplay handles updating and printing the timer to the display matrix
+func updateTimerDisplay(endTime time.Time, matrix *display.DisplayMatrix) {
+    remaining := time.Until(endTime)
+    timerRemaining := fmt.Sprintf("%02d:%02d:%02d", int(remaining.Hours()), int(remaining.Minutes())%60, int(remaining.Seconds())%60)
+    asciiArt := art.GetAsciiArt(timerRemaining, config.Font)
+    matrix.AddCenteredAsciiArt(asciiArt, timerRemaining)
+    matrix.Print()
+    matrix.ResizeAndClear()
 }
 
 // setupSignalHandling configures handling for SIGINT and SIGTERM.
@@ -140,19 +159,4 @@ func setupSignalHandling(cleanupFunc func()) {
         fmt.Println("\nReceived Ctrl+C, exiting...")
         os.Exit(0)
     }()
-}
-
-// cleanup performs application cleanup tasks.
-func cleanup() {
-    util.ShowCursor()
-	util.Clear()
-    util.Render()
-    if random.TempFileName != "" {
-        err := os.Remove(random.TempFileName)
-        if err != nil {
-            log.Printf("Failed to delete temporary file %s: %v\n", random.TempFileName, err)
-        } else {
-            log.Printf("Temporary file %s deleted successfully\n", random.TempFileName)
-        }
-    }
 }
