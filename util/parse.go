@@ -1,7 +1,6 @@
 package util
 
 import (
-	"flag"
 	"fmt"
 	"strings"
 	"time"
@@ -32,7 +31,7 @@ func CalculateTotalSeconds(timerDuration string, alarmTime string, directInput s
 			return seconds, nil
 		}
 		return seconds, err
-	} 
+	}
 	return 3, nil
 }
 
@@ -66,17 +65,8 @@ func ParseAlarm(alarmStr string) (int, error) {
 }
 
 func GetReminderMessage(reminderFlag string) string {
-    if reminderFlag == "" {
-        return "Time is Up!" 
-    }
-    return reminderFlag
-}
-
-func ParseFlags() (timerFlag string, alarmFlag string, reminderFlag string, logging bool) {
-	timer := flag.String("t", "", "Duration in hh:mm format")
-	alarm := flag.String("a", "", "Alarm time in 24-hour format hh:mm")
-	reminder := flag.String("r", "Time is Up!", "Reminder message")
-    enableLogging := flag.Bool("l", false, "Enable logging to a file")
-	flag.Parse()
-	return *timer, *alarm, *reminder, *enableLogging
+	if reminderFlag == "" {
+		return "Time is Up!"
+	}
+	return reminderFlag
 }
