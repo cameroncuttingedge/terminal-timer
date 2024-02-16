@@ -1,4 +1,4 @@
-module terminal-timer
+module github.com/cameroncuttingedge/terminal-timer
 
 go 1.18
 
@@ -16,7 +16,5 @@ require (
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
 	github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af // indirect
-	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/sys v0.17.0 // indirect
-	golang.org/x/tools v0.18.0 // indirect
 )

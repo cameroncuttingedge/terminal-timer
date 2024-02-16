@@ -10,9 +10,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"terminal-timer/random"
-	"terminal-timer/util"
 
+	"github.com/cameroncuttingedge/terminal-timer/random"
+	"github.com/cameroncuttingedge/terminal-timer/util"
 	"github.com/gen2brain/beeep"
 )
 

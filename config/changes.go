@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"terminal-timer/alert"
-	"terminal-timer/display"
-	"terminal-timer/util"
 	"time"
+
+	"github.com/cameroncuttingedge/terminal-timer/alert"
+	"github.com/cameroncuttingedge/terminal-timer/display"
+	"github.com/cameroncuttingedge/terminal-timer/util"
 )
 
 type ValidItemChecker func() ([]string, error)

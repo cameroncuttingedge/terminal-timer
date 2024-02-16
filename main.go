@@ -9,12 +9,12 @@ import (
 	"syscall"
 	"time"
 
-	"terminal-timer/alert"
-	"terminal-timer/art"
-	"terminal-timer/config"
-	"terminal-timer/display"
-	"terminal-timer/random"
-	"terminal-timer/util"
+	"github.com/cameroncuttingedge/terminal-timer/alert"
+	"github.com/cameroncuttingedge/terminal-timer/art"
+	"github.com/cameroncuttingedge/terminal-timer/config"
+	"github.com/cameroncuttingedge/terminal-timer/display"
+	"github.com/cameroncuttingedge/terminal-timer/random"
+	"github.com/cameroncuttingedge/terminal-timer/util"
 
 	"github.com/mattn/go-tty"
 )

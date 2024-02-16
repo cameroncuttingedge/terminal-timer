@@ -1,6 +1,6 @@
 # Terminal Timer
 
-A simple yet terminal-based timer application designed for productivity, written in Go. 
+A simple terminal-based timer application designed for productivity, written in Go. 
 
 
 
@@ -25,9 +25,9 @@ For users who prefer to install the precompiled binary directly:
 
 1. Download the latest release from the [Releases page](https://github.com/cameroncuttingedge/terminal_timer/releases).
 2. Extract the binary from the downloaded archive.
-3. Move the binary to a directory in your `PATH` to make it executable from anywhere.n This will depend on your OS
+3. Move the binary to a directory in your `PATH` to make it executable from anywhere. This will depend on your OS
 
-   For example, on Unix-like systems, you might do:
+   For example, on Unix-like systems, (May need sudo):
 
    ```sh
    mv terminal-timer /usr/local/bin/
@@ -35,10 +35,48 @@ For users who prefer to install the precompiled binary directly:
 4. Verify the installation by running:
 
     ```sh
-    terminal-timer --c    
+    terminal-timer -c    
     ```
 
-### Option 2: Building from Source
+
+### Option 2: Installing from Source Using `go install`
+
+For users who prefer to install the application directly from the source using Go:
+
+1. Ensure you have Go installed on your system. You can check by running `go version` in your terminal.
+
+    ```sh
+    go version
+    ```
+
+2. Use `go install` to download and install the binary directly from the repository:
+
+    ```sh
+    go install github.com/cameroncuttingedge/terminal-timer@main
+    ```
+
+    This command will install the latest version of `terminal-timer` to your `$GOPATH/bin` directory or `$GOBIN` if set.
+
+3. Verify the installation by running:
+
+    ```sh
+    terminal-timer -c    
+    ```
+
+    If `$GOPATH/bin` or `$GOBIN` is not in your PATH, you can add it with the following command:
+
+    ```sh
+    echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> ~/.bash_profile
+    source ~/.bash_profile
+    ```
+
+    Replace `~/.bash_profile` with `~/.bashrc` or `~/.zshrc` depending on your shell and system configuration.
+
+4. Now, you should be able to run `terminal-timer` from anywhere in your terminal.
+
+
+
+### Option 3: Building from Source
 
 For users who prefer to build the application from source:
 
@@ -46,7 +84,7 @@ For users who prefer to build the application from source:
 
 
    ```sh
-   go --version
+   go version
     ```
 
 2. Clone the repository:
