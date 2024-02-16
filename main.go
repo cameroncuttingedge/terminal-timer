@@ -30,7 +30,7 @@ func main() {
 
 	config.LoadOrCreateConfig()
 
-	random.GenerateTempFileName()
+	random.GenerateTempSoundFileName()
 
 	config.CheckIfconfigChangesRequested()
 

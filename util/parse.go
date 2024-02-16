@@ -31,7 +31,7 @@ func CalculateTotalSeconds(timerDuration string, alarmTime string, directInput s
 			return seconds, nil
 		}
 		return seconds, err
-	} 
+	}
 	return 3, nil
 }
 
@@ -65,8 +65,8 @@ func ParseAlarm(alarmStr string) (int, error) {
 }
 
 func GetReminderMessage(reminderFlag string) string {
-    if reminderFlag == "" {
-        return "Time is Up!" 
-    }
-    return reminderFlag
+	if reminderFlag == "" {
+		return "Time is Up!"
+	}
+	return reminderFlag
 }
