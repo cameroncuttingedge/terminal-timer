@@ -1,6 +1,6 @@
 # Terminal Timer
 
-A simple yet terminal-based timer application designed for productivity, written in Go. 
+A simple terminal-based timer application designed for productivity, written in Go. 
 
 
 
@@ -25,9 +25,9 @@ For users who prefer to install the precompiled binary directly:
 
 1. Download the latest release from the [Releases page](https://github.com/cameroncuttingedge/terminal_timer/releases).
 2. Extract the binary from the downloaded archive.
-3. Move the binary to a directory in your `PATH` to make it executable from anywhere.n This will depend on your OS
+3. Move the binary to a directory in your `PATH` to make it executable from anywhere. This will depend on your OS
 
-   For example, on Unix-like systems, you might do:
+   For example, on Unix-like systems, (May need sudo):
 
    ```sh
    mv terminal-timer /usr/local/bin/
@@ -35,7 +35,7 @@ For users who prefer to install the precompiled binary directly:
 4. Verify the installation by running:
 
     ```sh
-    terminal-timer --c    
+    terminal-timer -c    
     ```
 
 ### Option 2: Building from Source
