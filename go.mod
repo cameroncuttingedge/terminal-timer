@@ -1,4 +1,4 @@
-module terminal-timer
+module github.com/cameroncuttingedge/terminal-timer
 
 go 1.18
 
