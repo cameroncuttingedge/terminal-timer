@@ -5,8 +5,9 @@ import (
 	"math"
 	"os"
 	"strings"
-	"terminal-timer/art"
-	"terminal-timer/util"
+
+	"github.com/cameroncuttingedge/terminal-timer/art"
+	"github.com/cameroncuttingedge/terminal-timer/util"
 )
 
 type DisplayMatrix struct {

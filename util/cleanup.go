@@ -3,7 +3,8 @@ package util
 import (
 	"log"
 	"os"
-	"terminal-timer/random"
+
+	"github.com/cameroncuttingedge/terminal-timer/random"
 )
 
 // cleanup performs application cleanup tasks.
