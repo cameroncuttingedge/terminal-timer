@@ -33,7 +33,7 @@ For users who prefer to install the precompiled binary directly:
 
    ```sh
    mv terminal-timer /usr/local/bin/
-    ```
+   ```
 4. Verify the installation by running:
 
     ```sh
