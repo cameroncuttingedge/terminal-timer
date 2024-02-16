@@ -11,7 +11,6 @@ import (
 
 var screen = bufio.NewWriter(os.Stdout)
 
-
 func Clear() {
 	clearCode := "\033[H\033[2J"
 	fmt.Fprint(os.Stdout, clearCode)
@@ -43,10 +42,10 @@ func Render() {
 }
 
 func GetSize() (int, int, error) {
-    width, height, err := term.GetSize(int(os.Stdout.Fd()))
-    if err != nil {
-        return 0, 0, err
-    }
+	width, height, err := term.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		return 0, 0, err
+	}
 
-    return width, height, nil
+	return width, height, nil
 }
