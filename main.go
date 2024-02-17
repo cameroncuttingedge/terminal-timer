@@ -32,13 +32,14 @@ func main() {
 
 	random.GenerateTempSoundFileName()
 
-	config.CheckIfconfigChangesRequested()
+	config.CheckIfConfigChangesRequested()
+
 
 	if *util.EnableLogging {
 		util.SetupLogger()
 	}
 
-	setupSignalHandling(util.Cleanup)
+	setupSignalHandling(true)
 
 	var directInput string
 	if len(flag.Args()) > 0 {
@@ -53,7 +54,7 @@ func main() {
 
 	reminder := util.GetReminderMessage(*util.ReminderFlag)
 	runTimerLoop(totalSeconds, reminder)
-	defer util.Cleanup()
+	defer util.Cleanup(true)
 }
 
 // runTimerLoop runs the main timer loop, displaying time and handling user input.
@@ -149,13 +150,13 @@ func updateTimerDisplay(endTime time.Time, matrix *display.DisplayMatrix) {
 }
 
 // setupSignalHandling configures handling for SIGINT and SIGTERM.
-func setupSignalHandling(cleanupFunc func()) {
+func setupSignalHandling(clearScreen bool) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
 		<-c
-		cleanupFunc()
+		util.Cleanup(clearScreen)
 		fmt.Println("\nReceived Ctrl+C, exiting...")
 		os.Exit(0)
 	}()
