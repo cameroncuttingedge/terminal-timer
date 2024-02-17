@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/cameroncuttingedge/terminal-timer/alert"
 	"github.com/cameroncuttingedge/terminal-timer/display"
@@ -14,76 +13,67 @@ import (
 
 type ValidItemChecker func() ([]string, error)
 
-func CheckIfconfigChangesRequested() {
+func CheckIfConfigChangesRequested() {
+    var shouldExit bool
 
-	// Setting a new font
-	if *util.SetFontFlag != "" {
-		updateConfiguration("font", *util.SetFontFlag, listValidFonts)
-		return
-	}
+    // Setting a new font
+    if *util.SetFontFlag != "" {
+        updateConfiguration("font", *util.SetFontFlag, listValidFonts)
+        shouldExit = true
+    }
 
-	// Setting a new sound
-	if *util.SetSoundFlag != "" {
-		updateConfiguration("sound", *util.SetSoundFlag, alert.ListValidSounds)
-	}
+    // Setting a new sound
+    if *util.SetSoundFlag != "" && !shouldExit {
+        updateConfiguration("sound", *util.SetSoundFlag, alert.ListValidSounds)
+        shouldExit = true
+    }
 
-	if *util.ListValidFonts {
-		fmt.Println("Listing all valid fonts...")
-		sounds, err := listValidFonts()
-		if err != nil {
-			log.Printf("Error getting fonts")
-			fmt.Println("Error getting gonts")
-			return
-		}
-		display.RenderPrettyData(sounds)
-		time.Sleep(1 * time.Minute)
-		return
-	}
+    if *util.ListValidFonts && !shouldExit {
+        fmt.Println("Listing all valid fonts...")
+        fonts, err := listValidFonts()
+        if err != nil {
+            log.Printf("Error getting fonts: %v", err)
+        } else {
+            display.RenderPrettyData(fonts)
+        }
+        shouldExit = true
+    }
 
-	if *util.ListValidSounds {
-		fmt.Println("Listing all valid sounds...")
-		sounds, err := alert.ListValidSounds()
-		if err != nil {
-			log.Printf("Error getting sounds")
-			fmt.Println("Error getting sounds")
-			return
-		}
-		display.RenderPrettyData(sounds)
-		time.Sleep(1 * time.Minute)
-		return
-	}
+    if *util.ListValidSounds && !shouldExit {
+        fmt.Println("Listing all valid sounds...")
+        sounds, err := alert.ListValidSounds()
+        if err != nil {
+            log.Printf("Error getting sounds: %v", err)
+        } else {
+            display.RenderPrettyData(sounds)
+        }
+        shouldExit = true
+    }
 
-	// Handle previewing the font
-	if *util.PreviewFontFlag != "" {
-		if !isValidItem(*util.PreviewFontFlag, listValidFonts) {
-			return
-		}
-		display.RenderFontExample(*util.PreviewFontFlag)
-		os.Exit(1)
-	}
+    if *util.PreviewFontFlag != "" && !shouldExit {
+        display.RenderFontExample(*util.PreviewFontFlag)
+        shouldExit = true
+    }
 
-	if *util.PreviewSoundFlag != "" {
-		if !isValidItem(*util.PreviewSoundFlag, alert.ListValidSounds) {
-			return
-		}
+    if *util.PreviewSoundFlag != "" && !shouldExit {
+        tmpfile, err := alert.PrepareSoundFile(*util.PreviewSoundFlag)
+        if err != nil {
+            log.Printf("Error preparing sound file: %v", err)
+        } else {
+            alert.ExecuteSoundPlayback(tmpfile)
+        }
+        shouldExit = true
+    }
 
-		tmpfile, err := alert.PrepareSoundFile(*util.PreviewSoundFlag)
+    if *util.ShowCurrentConfig && !shouldExit {
+        PrintCurrentConfig()
+        shouldExit = true
+    }
 
-		if err != nil {
-			log.Printf("Error getting sounds")
-			fmt.Println("Error getting sounds")
-			return
-		}
-
-		alert.ExecuteSoundPlayback(tmpfile)
-		util.Cleanup()
-		os.Exit(1)
-	}
-
-	if *util.ShowCurrentConfig {
-		PrintCurrentConfig()
-		os.Exit(1)
-	}
+    if shouldExit {
+        util.Cleanup(false)
+        os.Exit(0) 
+    }
 }
 
 func listValidFonts() ([]string, error) {
