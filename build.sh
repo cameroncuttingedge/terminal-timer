@@ -1,7 +1,7 @@
 #!/bin/bash
 
 APP_NAME="terminal-timer"
-VERSION="1.0.0"
+VERSION="1.0.1"
 
 # macOS Intel build
 echo "Building for macOS (Intel)..."
