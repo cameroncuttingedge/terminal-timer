@@ -8,9 +8,11 @@ import (
 )
 
 // cleanup performs application cleanup tasks.
-func Cleanup() {
+func Cleanup(clearScreen bool) {
 	ShowCursor()
-	Clear()
+	if clearScreen {
+		Clear()
+	}
 	Render()
 	if random.TempFileName != "" {
 		err := os.Remove(random.TempFileName)
