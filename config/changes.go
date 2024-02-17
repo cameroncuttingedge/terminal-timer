@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/cameroncuttingedge/terminal-timer/alert"
 	"github.com/cameroncuttingedge/terminal-timer/display"
