@@ -51,11 +51,17 @@ func CheckIfConfigChangesRequested() {
     }
 
     if *util.PreviewFontFlag != "" && !shouldExit {
+		if !isValidItem(*util.PreviewFontFlag, listValidFonts) {
+			return
+		}
         display.RenderFontExample(*util.PreviewFontFlag)
         shouldExit = true
     }
 
     if *util.PreviewSoundFlag != "" && !shouldExit {
+		if !isValidItem(*util.PreviewSoundFlag, alert.ListValidSounds) {
+			return
+		}
         tmpfile, err := alert.PrepareSoundFile(*util.PreviewSoundFlag)
         if err != nil {
             log.Printf("Error preparing sound file: %v", err)
