@@ -1,0 +1,9 @@
+{
+  "release-type": "go",
+  "packages": {
+    ".": {
+      "release-type": "go"
+      "package-name": "terminal-timer"
+    }
+  }
+}
