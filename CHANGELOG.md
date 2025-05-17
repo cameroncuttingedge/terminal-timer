@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.6](https://github.com/cameroncuttingedge/terminal-timer/compare/v0.0.5...v0.0.6) (2025-05-17)
+
+
+### Bug Fixes
+
+* use remove license ([100cff9](https://github.com/cameroncuttingedge/terminal-timer/commit/100cff978405813627c15102d79dfc396ebba489))
+
 ## [0.0.5](https://github.com/cameroncuttingedge/terminal-timer/compare/v0.0.4...v0.0.5) (2025-05-17)
 
 
