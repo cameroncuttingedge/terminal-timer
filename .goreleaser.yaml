@@ -27,7 +27,7 @@ checksum:
   name_template: "checksums.txt"
 
 changelog:
-  use: release-please
+  use: github
 
 brews:
   - name: terminal-timer
