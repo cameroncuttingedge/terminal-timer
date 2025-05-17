@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.7](https://github.com/cameroncuttingedge/terminal-timer/compare/v0.0.6...v0.0.7) (2025-05-17)
+
+
+### Bug Fixes
+
+* gorelease ([53541d3](https://github.com/cameroncuttingedge/terminal-timer/commit/53541d359a7f6897a0d98fcb5bbdf5864f2a8bd2))
+
 ## [0.0.6](https://github.com/cameroncuttingedge/terminal-timer/compare/v0.0.5...v0.0.6) (2025-05-17)
 
 
