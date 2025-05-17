@@ -34,7 +34,6 @@ func main() {
 
 	config.CheckIfConfigChangesRequested()
 
-
 	if *util.EnableLogging {
 		util.SetupLogger()
 	}
