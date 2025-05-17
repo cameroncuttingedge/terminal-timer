@@ -1,0 +1,44 @@
+project_name: terminal-timer
+
+release:
+  github:
+    owner: cameronmora
+    name: terminal-timer
+
+builds:
+  - binary: terminal-timer
+    main: .
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - format: zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  use: release-please
+
+brews:
+  - name: terminal-timer
+    tap:
+      owner: cameronmora
+      name: homebrew-terminal-timer
+    commit_author:
+      name: cameronmora
+      email: noreply@github.com
+    homepage: "https://github.com/cameronmora/terminal-timer"
+    description: "A terminal-based countdown timer"
+    test: |
+      system "#{bin}/terminal-timer", "--help"
+

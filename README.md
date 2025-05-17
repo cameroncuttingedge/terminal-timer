@@ -19,7 +19,15 @@ To get a local copy up and running, you have two options: installing the precomp
 - Go 1.15+ (if building from source)
 - Git
 
-### Option 1: Installing the Precompiled Binary
+### Option 1: Installing via brew (MacOS)
+
+```bash
+brew tap cameroncuttingedge/terminal-timer
+brew install terminal-timer
+
+```
+
+### Option 2: Installing the Precompiled Binary
 
 For users who prefer to install the precompiled binary directly:
 
@@ -39,7 +47,7 @@ For users who prefer to install the precompiled binary directly:
     ```
 
 
-### Option 2: Installing from Source Using `go install`
+### Option 3: Installing from Source Using `go install`
 
 For users who prefer to install the application directly from the source using Go:
 
@@ -76,7 +84,7 @@ For users who prefer to install the application directly from the source using G
 
 
 
-### Option 3: Building from Source
+### Option 4: Building from Source
 
 For users who prefer to build the application from source:
 
