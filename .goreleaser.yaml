@@ -2,7 +2,7 @@ project_name: terminal-timer
 
 release:
   github:
-    owner: cameronmora
+    owner: cameroncuttingedge
     name: terminal-timer
 
 builds:
@@ -20,7 +20,6 @@ archives:
   - format: zip
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     files:
-      - LICENSE
       - README.md
 
 checksum:
@@ -32,12 +31,12 @@ changelog:
 brews:
   - name: terminal-timer
     tap:
-      owner: cameronmora
+      owner: cameroncuttingedge
       name: homebrew-terminal-timer
     commit_author:
-      name: cameronmora
+      name: cameroncuttingedge
       email: noreply@github.com
-    homepage: "https://github.com/cameronmora/terminal-timer"
+    homepage: "https://github.com/cameroncuttingedge/terminal-timer"
     description: "A terminal-based countdown timer"
     test: |
       system "#{bin}/terminal-timer", "--help"
