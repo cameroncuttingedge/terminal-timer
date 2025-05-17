@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/cameroncuttingedge/terminal-timer/compare/v0.0.4...v0.0.5) (2025-05-17)
+
+
+### Bug Fixes
+
+* use github changelog ([fed6805](https://github.com/cameroncuttingedge/terminal-timer/commit/fed6805c2ddde5f02f13b79a760b017d8e548986))
+
 ## [0.0.4](https://github.com/cameroncuttingedge/terminal-timer/compare/v0.0.3...v0.0.4) (2025-05-17)
 
 
