@@ -30,14 +30,14 @@ changelog:
 
 brews:
   - name: terminal-timer
-    tap:
+    repository:
       owner: cameroncuttingedge
-      name: homebrew-terminal-timer
+      name: terminal-timer
     commit_author:
       name: cameroncuttingedge
       email: noreply@github.com
     homepage: "https://github.com/cameroncuttingedge/terminal-timer"
-    description: "A terminal-based countdown timer"
+    description: "A terminal-based timer"
     test: |
       system "#{bin}/terminal-timer", "--help"
 
