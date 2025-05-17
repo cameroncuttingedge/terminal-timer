@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/cameroncuttingedge/terminal-timer/compare/v0.0.3...v0.0.4) (2025-05-17)
+
+
+### Bug Fixes
+
+* use rp token ([795aba2](https://github.com/cameroncuttingedge/terminal-timer/commit/795aba204caa0a03a5192d53e2e00059dcd26e2d))
+
 ## [0.0.3](https://github.com/cameroncuttingedge/terminal-timer/compare/v0.0.2...v0.0.3) (2025-05-17)
 
 
